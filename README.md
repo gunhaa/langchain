@@ -1,5 +1,8 @@
 # pipenv
 ```shell
+# pip 최신 버전 업데이트
+python -m pip install --upgrade pip
+
 pip install pipenv
 pipenv shell
 pipenv install langchain
