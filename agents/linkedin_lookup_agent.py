@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
 
+from tools.tool import get_profile_url_tavily
+
 load_dotenv()
 from langchain_google_genai import GoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
@@ -30,3 +32,36 @@ def lookup(name: str) -> str:
         template=template,
         input_variables=["name_of_person"]
     )
+
+    tools_for_agent = [
+        # Tool 객체 초기화
+        # 더 많은 옵션이 있지만 3가지만으로도 충분히 유용하다
+        Tool(
+            # 에이전트가 이 도구를 사용할때 쓰는 이름
+            # log에 보이게 된다
+            name = "Crawl Google 4 linkedin profile page",
+            # 이 도구가 실행하기를 원하는 python 함수
+            func = get_profile_url_tavily,
+            # LLM이 이 도구를 사용할지 말지를 결정하는 기준이다
+            # 간결하면서도 최대한 많은 정보를 설명에 담아 LLM이 헷갈리지 않고 언제 어떤 도구를
+            # 사용할지 알게 해야 한다
+            description= "useful for when you need get the Linkedin page URL"
+        )
+    ]
+
+    # ReAct 프롬프트 가져오기
+    # LLM에 보내지는 프롬프트
+    react_prompt = hub.pull("hwchase17/react")
+    # 레시피
+    agent = create_react_agent(llm=llm, tools=tools_for_agent, prompt=react_prompt)
+    # 실제로 agent를 동작시킨다
+    # verbose 설정을 통해 로깅과 에이전트 작동을 확인할 수 있다
+    # 모든 것을 조율하고 실제로 Python함수를 호출한다
+    agent_executor = AgentExecutor(agent=agent, tools=tools_for_agent, verbose=True)
+
+    result = agent_executor.invoke(
+        input={"input": prompt_template.format_prompt(name_of_person=name)}
+    )
+
+    linked_profile_url = result["output"]
+    return linked_profile_url

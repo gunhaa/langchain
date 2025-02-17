@@ -12,6 +12,7 @@ from langchain_google_genai import GoogleGenerativeAI
 from langchain_ollama import ChatOllama
 from pydantic import SecretStr
 
+from agents.linkedin_lookup_agent import lookup
 from third_parties.linkedin import scrape_linkedin_profile
 
 # __name__은 파이썬에서 제공하는 특수 변수로, 현재 실행 중인 파일의 이름을 담고있다
@@ -61,3 +62,4 @@ if __name__ == "__main__":
     res = chain.invoke(input={"information": linkedin_data})
 
     print(res)
+    print(lookup(name="eden-marco"))
