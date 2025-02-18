@@ -26,7 +26,6 @@ def scrape_linkedin_profile(linkedin_profile_url: str, mock: bool = True):
             timeout=10,
         )
     else:
-        # 실제 api
         api_endpoint = "https://nubela.co/proxycurl/api/v2/linkedin"
         header_dic = {"Authorization": f'Bearer {os.environ.get("PROXYCURL_API_KEY")}'}
         response = requests.get(
@@ -37,7 +36,6 @@ def scrape_linkedin_profile(linkedin_profile_url: str, mock: bool = True):
         )
     data = response.json()
 
-    # 요청 토큰 수를 줄이기 위해 불필요한 필드 제거
     data = {
         k: v
         for k, v in data.items()
